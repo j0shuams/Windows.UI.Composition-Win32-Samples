@@ -26,6 +26,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows.Interop;
 using Windows.UI.Composition;
+using WinRT;
 
 namespace HelloComposition
 {
@@ -114,12 +115,15 @@ namespace HelloComposition
 
             Compositor = new Compositor();
             object iunknown = Compositor as object;
-            interop = (ICompositorDesktopInterop)iunknown;
+            interop = iunknown.As<ICompositorDesktopInterop>();
             IntPtr raw;
             interop.CreateDesktopWindowTarget(hwndHost, true, out raw);
-
+            /* 
             object rawObject = Marshal.GetObjectForIUnknown(raw);
             compositionTarget = (ICompositionTarget)rawObject;
+            */
+            object rawObject = MarshalInspectable<object>.FromAbi(raw);
+            compositionTarget = rawObject.As<ICompositionTarget>();
 
             if (raw == null) { throw new Exception("QI Failed"); }
         }
@@ -230,13 +234,68 @@ namespace HelloComposition
 
     [ComImport]
     [Guid("A1BEA8BA-D726-4663-8129-6B5E7927FFA6")]
-    [InterfaceType(ComInterfaceType.InterfaceIsIInspectable)]
+    [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
     public interface ICompositionTarget
     {
+        void GetIids(out int iidCount, out IntPtr iids);
+        void GetRuntimeClassName(out IntPtr className);
+        void GetTrustLevel(out TrustLevel trustLevel);
+
         Windows.UI.Composition.Visual Root
         {
             get;
             set;
+        }
+
+        public struct Vftbl
+        {
+            internal IInspectable.Vftbl IInspectableVftbl;
+            public Windows.UI.Composition.Visual get_Root_0;
+
+            public static readonly IntPtr AbiToProjectionVftablePtr;
+
+            static unsafe Vftbl()
+            {
+                AbiToProjectionVftablePtr = ComWrappersSupport.AllocateVtableMemory(typeof(Vftbl), Marshal.SizeOf<global::WinRT.IInspectable.Vftbl>() + sizeof(IntPtr) * 4);
+                (*(Vftbl*)AbiToProjectionVftablePtr) = new Vftbl
+                {
+                    IInspectableVftbl = global::WinRT.IInspectable.Vftbl.AbiToProjectionVftable,
+                    get_Root_0 = &Do_Abi_get_Root_0
+                };
+            }
+
+            [UnmanagedCallersOnly]
+            private static unsafe int Do_Abi_get_Root_0(IntPtr thisPtr, Windows.UI.Composition.Visual* value)
+            {
+                Windows.UI.Composition.Visual __value = default;
+
+                *value = default;
+
+                try
+                {
+                    __value = global::WinRT.ComWrappersSupport.FindObject<ICompositionTarget>(thisPtr).Root;
+                    *value = __value;
+
+                }
+                catch (global::System.Exception __exception__)
+                {
+                    global::WinRT.ExceptionHelpers.SetErrorInfo(__exception__);
+                    return global::WinRT.ExceptionHelpers.GetHRForException(__exception__);
+                }
+                return 0;
+            }
+        }
+
+        Windows.UI.Composition.Visual Root
+        {
+            get 
+            { 
+                var _obj = ((ObjectReference<Vftbl>)((IWinRTObject)this).GetObjectReferenceForType(typeof(ICompositionTarget).TypeHandle));
+                var ThisPtr = _obj.ThisPtr;
+                Windows.UI.Composition.Visual __retval = default;
+                global::WinRT.ExceptionHelpers.ThrowExceptionForHR(_obj.Vftbl.get_Root_0(ThisPtr, out __retval));
+                return __retval;
+            }
         }
     }
 

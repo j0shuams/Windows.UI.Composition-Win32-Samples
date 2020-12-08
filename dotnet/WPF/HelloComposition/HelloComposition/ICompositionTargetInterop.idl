@@ -1,0 +1,9 @@
+﻿[uuid(A1BEA8BA-D726-4663-8129-6B5E7927FFA6)]
+interface ICompositionTargetInterop
+{
+    Windows.UI.Composition.Visual Root
+    {
+        get;
+        set;
+    }
+};
