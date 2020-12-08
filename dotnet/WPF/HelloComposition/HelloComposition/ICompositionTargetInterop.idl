@@ -1,9 +1,12 @@
-﻿[uuid(A1BEA8BA-D726-4663-8129-6B5E7927FFA6)]
-interface ICompositionTargetInterop
+﻿namespace CompositionInterop
 {
-    Windows.UI.Composition.Visual Root
+    [uuid(A1BEA8BA-D726-4663-8129-6B5E7927FFA6)]
+    interface ICompositionTargetInterop
     {
-        get;
-        set;
-    }
-};
+        Windows.UI.Composition.Visual Root
+        {
+            get;
+            set;
+        };
+    };
+}
